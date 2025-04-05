@@ -6,6 +6,8 @@ mkShell.override { stdenv = pkgs.gcc14Stdenv; } {
   buildInputs = [
     pkgs.gcc14
     pkgs.gnumake
+    pkgs.bear
+    pkgs.graphviz
   ];
 
   nativeBuildInputs = [

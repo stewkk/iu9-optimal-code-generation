@@ -4,9 +4,11 @@ all:
 
 test:
 	gcc -fplugin=plugin/gimple-debug.so -O0 src/test/test.c -o src/test/test
-	rm src/test/test
 
-.PHONY: clean
+ssa-graph:
+	gcc -O0 -fdump-tree-ssa-graph -g src/test/test.c -o test
+
+.PHONY: clean all test ssa-graph
 
 clean:
 	rm -rf plugin src/test/test

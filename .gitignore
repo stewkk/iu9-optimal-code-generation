@@ -1,1 +1,8 @@
 /lab1/plugin/
+/lab1/.cache/
+/lab1/compile_commands.json
+/lab1/test
+/lab1/test.c.022t.ssa
+/lab1/test.c.022t.ssa.dot
+/lab1/test.c.022t.ssa.dot.png
+/lab1/src/test/test
