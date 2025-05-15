@@ -2,16 +2,56 @@
 
 with pkgs;
 
+let
+  pythonWithPyYAML = pkgs.python310.buildEnv.override {
+    extraLibs = with pkgs.python310Packages; [
+      pip
+      virtualenv
+      pytest
+      pyyaml
+    ];
+    ignoreCollisions = true;
+  };
+in
 mkShell.override { stdenv = pkgs.gcc14Stdenv; } {
   buildInputs = [
+    pythonWithPyYAML
     pkgs.gcc14
     pkgs.gnumake
     pkgs.bear
     pkgs.graphviz
+    pkgs.cmake
   ];
 
   nativeBuildInputs = [
     pkgs.clang-tools_18
     pkgs.gmpxx.dev
   ];
+
+  NIX_LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [
+    pkgs.gcc14Stdenv
+    pkgs.zlib
+  ];
+
+  NIX_LD = pkgs.lib.fileContents "${pkgs.stdenv.cc}/nix-support/dynamic-linker";
+  shellHook = ''
+    export VENV_DIR="$PWD/.venv"
+    if [ ! -d "$VENV_DIR" ]; then
+      ${pythonWithPyYAML}/bin/python -m venv $VENV_DIR
+      source $VENV_DIR/bin/activate
+      pip install pip setuptools wheel
+    else
+      source $VENV_DIR/bin/activate
+    fi
+
+    export LD_LIBRARY_PATH=$NIX_LD_LIBRARY_PATH
+    export PYTHONPATH="${pythonWithPyYAML}/lib/python3.10/site-packages:$PYTHONPATH"
+
+    if [ -f requirements.txt ]; then
+      pip install -r requirements.txt
+    fi
+    pip install pytest
+
+    python --version
+  '';
 }
