@@ -26,11 +26,15 @@ mkShell.override { stdenv = pkgs.gcc14Stdenv; } {
   nativeBuildInputs = [
     pkgs.clang-tools_18
     pkgs.gmpxx.dev
+    pkgs.llvmPackages_18.stdenv
+    pkgs.llvmPackages_18.llvm
+    pkgs.lld_18
   ];
 
   NIX_LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath [
     pkgs.gcc14Stdenv
     pkgs.zlib
+    pkgs.zlib.dev
   ];
 
   NIX_LD = pkgs.lib.fileContents "${pkgs.stdenv.cc}/nix-support/dynamic-linker";
