@@ -1,3 +1,5 @@
+#undef _FORTIFY_SOURCE
+
 #include <iostream>
 #include <cstdint>
 
