@@ -23,6 +23,7 @@ mkShell.override { stdenv = pkgs.gcc14Stdenv; } {
     pkgs.graphviz
     pkgs.cmake
     pkgs.antlr4_12
+    pkgs.jdk22
   ];
 
   nativeBuildInputs = [
