@@ -9,6 +9,7 @@ let
       virtualenv
       pytest
       pyyaml
+      antlr4-python3-runtime
     ];
     ignoreCollisions = true;
   };
@@ -21,6 +22,7 @@ mkShell.override { stdenv = pkgs.gcc14Stdenv; } {
     pkgs.bear
     pkgs.graphviz
     pkgs.cmake
+    pkgs.antlr4_12
   ];
 
   nativeBuildInputs = [
