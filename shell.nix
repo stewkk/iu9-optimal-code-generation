@@ -22,7 +22,7 @@ mkShell.override { stdenv = pkgs.gcc14Stdenv; } {
     pkgs.bear
     pkgs.graphviz
     pkgs.cmake
-    pkgs.antlr4_12
+    pkgs.antlr
     pkgs.jdk22
   ];
 
@@ -53,6 +53,8 @@ mkShell.override { stdenv = pkgs.gcc14Stdenv; } {
 
     export LD_LIBRARY_PATH=$NIX_LD_LIBRARY_PATH
     export PYTHONPATH="${pythonWithPyYAML}/lib/python3.10/site-packages:$PYTHONPATH"
+
+    export ANTLR_JAR="${pkgs.antlr}/share/java/antlr-4.13.0-complete.jar"
 
     if [ -f requirements.txt ]; then
       pip install -r requirements.txt

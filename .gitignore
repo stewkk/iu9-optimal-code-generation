@@ -10,3 +10,5 @@
 /lab2/compiler
 /antlr4-master/
 /lab3/build/
+/lab3/.cache/
+/lab3/src/stewkk/useless/codegen/
