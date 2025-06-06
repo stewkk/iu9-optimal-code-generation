@@ -26,9 +26,8 @@ add_executable(useless
   codegen/TParser.cpp
   codegen/TLexer.cpp
   codegen/TParserBaseListener.cpp
-  codegen/TParserBaseVisitor.cpp
   codegen/TParserListener.cpp
-  codegen/TParserVisitor.cpp
+  logic/llvm_ir_builder.cpp
 )
 
 target_compile_features(useless PRIVATE cxx_std_20)
