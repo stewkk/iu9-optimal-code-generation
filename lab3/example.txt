@@ -6,6 +6,8 @@ if (x < y) {
    return x;
 }
 
+z = 1;
+
 while (x == z) {
     z = 10;
     break;

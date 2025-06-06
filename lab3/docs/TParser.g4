@@ -6,27 +6,27 @@ options {
 
 main: stat+ EOF;
 
-stat: ID Assign expr Semicolon
-    | Return expr Semicolon
-    | Break Semicolon
-    | Continue Semicolon
-    | control OpenPar cond ClosePar OpenCurly stat+ CloseCurly
+stat: ID Assign expr Semicolon # Assign
+    | Return expr Semicolon # Return
+    | Break Semicolon # Break
+    | Continue Semicolon # Continue
+    | control OpenPar cond ClosePar OpenCurly stat+ CloseCurly # FlowControl
 ;
 
-control: If
-    | While
+control: If # If
+    | While # While
 ;
 
-cond: expr Equal expr
-    | expr NotEqual expr
-    | expr LessThan expr
-    | expr GreaterThan expr
+cond: expr Equal expr # Eq
+    | expr NotEqual expr # Ne
+    | expr LessThan expr # Lt
+    | expr GreaterThan expr # Gt
 ;
 
-expr: expr Star expr
-    | expr Minus expr
-    | expr Plus expr
-    | OpenPar expr ClosePar
-    | identifier = ID
-    | INT
+expr: expr Star expr # Star
+    | expr Minus expr # Minus
+    | expr Plus expr # Plus
+    | OpenPar expr ClosePar # Nested
+    | identifier = ID # Ident
+    | INT # Int
 ;

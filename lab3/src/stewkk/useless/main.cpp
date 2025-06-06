@@ -4,7 +4,7 @@
 
 #include <stewkk/useless/codegen/TLexer.h>
 #include <stewkk/useless/codegen/TParser.h>
-#include <stewkk/useless/codegen/TParserBaseListener.h>
+#include <stewkk/useless/codegen/TParserBaseVisitor.h>
 
 #include <stewkk/useless/logic/llvm_ir_builder.hpp>
 
@@ -29,9 +29,11 @@ int main() {
 
   std::cout << tree->toStringTree(&parser) << std::endl << std::endl;
 
-  Listener listener;
-  tree::ParseTreeWalker walker;
-  walker.walk(&listener, tree);
+  Visitor visitor;
+  visitor.visit(tree);
+
+  auto ir = visitor.GetIr();
+  ir->print(llvm::errs(), nullptr);
 
   return 0;
 }

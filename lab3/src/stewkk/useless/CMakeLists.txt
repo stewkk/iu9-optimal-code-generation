@@ -1,23 +1,5 @@
 include(FetchAntlr4)
-
-# add_library(liblexer
-#   .cpp
-# )
-# add_library(stewkk::liblexer ALIAS liblexer)
-# target_compile_features(liblexer PUBLIC cxx_std_20)
-# set_target_properties(liblexer PROPERTIES
-#   CXX_STANDART 20
-#   CXX_STANDART_REQUIRED YES
-#   CXX_EXTENSIONS YES
-# )
-# set_target_properties(liblexer PROPERTIES OUTPUT_NAME stewkk_lexer)
-# target_include_directories(
-#   liblexer PUBLIC $<INSTALL_INTERFACE:include>
-#                     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-# )
-# target_compile_options(liblexer PRIVATE ${BASE_COMPILE_FLAGS})
-# target_link_options(liblexer PRIVATE ${BASE_LINK_FLAGS})
-# target_link_libraries(liblexer PRIVATE re2::re2 range-v3::range-v3)
+include(SetupLLVM)
 
 add_definitions(-DANTLR4CPP_STATIC)
 
@@ -25,8 +7,8 @@ add_executable(useless
   main.cpp
   codegen/TParser.cpp
   codegen/TLexer.cpp
-  codegen/TParserBaseListener.cpp
-  codegen/TParserListener.cpp
+  codegen/TParserBaseVisitor.cpp
+  codegen/TParserVisitor.cpp
   logic/llvm_ir_builder.cpp
 )
 
@@ -40,6 +22,8 @@ set_target_properties(useless PROPERTIES
 target_compile_options(useless PRIVATE ${BASE_COMPILE_FLAGS})
 target_include_directories(useless PRIVATE
   ${ANTLR4_INCLUDE_DIRS}
+  ${LLVM_INCLUDE_DIRS}
   $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
 )
-target_link_libraries(useless PRIVATE antlr4_static)
+llvm_map_components_to_libnames(llvm_libs support core irreader)
+target_link_libraries(useless PRIVATE antlr4_static ${llvm_libs})
