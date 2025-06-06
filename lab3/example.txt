@@ -1,0 +1,14 @@
+
+y = 10;
+x = 2 + 3 * y;
+
+if (x < y) {
+   return x;
+}
+
+while (x == z) {
+    z = 10;
+    break;
+}
+
+return 123;

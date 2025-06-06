@@ -1,17 +1,16 @@
 #include <iostream>
-#include <string_view>
 
 #include <antlr4-runtime.h>
 #include <stewkk/useless/codegen/TLexer.h>
 #include <stewkk/useless/codegen/TParser.h>
 
-using std::string_view_literals::operator""sv;
-
 using namespace stewkk::useless::codegen;
 using namespace antlr4;
 
 int main() {
-  ANTLRInputStream input("🍴 = 🍐 + \"😎\";(((x * π))) * µ + ∰; a + (x * (y ? 0 : 1) + z);"sv);
+  std::ifstream f("example.txt");
+
+  ANTLRInputStream input(f);
   TLexer lexer(&input);
   CommonTokenStream tokens(&lexer);
 
