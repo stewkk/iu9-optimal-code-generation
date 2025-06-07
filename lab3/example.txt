@@ -2,15 +2,15 @@
 y = 10;
 x = 2 + 3 * y;
 
-if (x < y) {
-   return x;
-}
+# if (x < y) {
+#    return x;
+# }
 
 z = 1;
 
-while (x == z) {
-    z = 10;
-    break;
-}
+# while (x == z) {
+#     z = 10;
+#     break;
+# }
 
 return 123;

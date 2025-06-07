@@ -1,5 +1,7 @@
 #pragma once
 
+#include <map>
+
 #include <llvm/ADT/APInt.h>
 #include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/Constants.h>
@@ -21,12 +23,23 @@ class Visitor : public codegen::TParserBaseVisitor {
 public:
   Visitor();
 
+  virtual std::any visitInt(codegen::TParser::IntContext *ctx) override;
+  virtual std::any visitIdent(codegen::TParser::IdentContext *ctx) override;
+  virtual std::any visitBinaryOp(codegen::TParser::BinaryOpContext *ctx) override;
+  // virtual std::any visitFlowControl(codegen::TParser::FlowControlContext *ctx) override;
+  virtual std::any visitAssign(codegen::TParser::AssignContext *ctx) override;
+  virtual std::any visitReturn(codegen::TParser::ReturnContext *ctx) override;
+
+  llvm::AllocaInst* CreateEntryBlockAlloca(llvm::Function *TheFunction,
+                                          llvm::StringRef VarName);
+
   const llvm::Module* GetIr() const;
 
 private:
   std::unique_ptr<llvm::LLVMContext> llvm_context_;
   std::unique_ptr<llvm::IRBuilder<llvm::NoFolder>> ir_builder_;
   std::unique_ptr<llvm::Module> ir_module_;
+  std::map<std::string, llvm::AllocaInst*> named_values_;
 };
 
 } // namespace stewkk::useless::logic

@@ -13,20 +13,25 @@ stat: ID Assign expr Semicolon # Assign
     | control OpenPar cond ClosePar OpenCurly stat+ CloseCurly # FlowControl
 ;
 
-control: If # If
-    | While # While
+control: If
+    | While
 ;
 
-cond: expr Equal expr # Eq
-    | expr NotEqual expr # Ne
-    | expr LessThan expr # Lt
-    | expr GreaterThan expr # Gt
+cond: expr condOp expr;
+
+condOp: Equal
+    | NotEqual
+    | LessThan
+    | GreaterThan
 ;
 
-expr: expr Star expr # Star
-    | expr Minus expr # Minus
-    | expr Plus expr # Plus
+expr: lhs=expr op rhs=expr # BinaryOp
     | OpenPar expr ClosePar # Nested
     | identifier = ID # Ident
     | INT # Int
+;
+
+op: Star
+    | Minus
+    | Plus
 ;

@@ -1,5 +1,7 @@
 #include <stewkk/useless/logic/llvm_ir_builder.hpp>
 
+#include <string>
+
 namespace stewkk::useless::logic {
 
 Visitor::Visitor()
@@ -15,6 +17,75 @@ Visitor::Visitor()
   llvm::BasicBlock *bb = llvm::BasicBlock::Create(*llvm_context_, "entry", function);
 
   ir_builder_->SetInsertPoint(bb);
+}
+
+std::any Visitor::visitInt(codegen::TParser::IntContext *ctx) {
+    auto i = ctx->INT();
+    std::int32_t val = std::stoi(i->getText());
+    return static_cast<llvm::Value*>(llvm::ConstantInt::get(*llvm_context_, llvm::APInt(32, val)));
+}
+
+std::any Visitor::visitIdent(codegen::TParser::IdentContext *ctx) {
+  auto name = ctx->ID()->getText();
+  return static_cast<llvm::Value*>(named_values_[name]);
+}
+
+// std::any Visitor::visitFlowControl(codegen::TParser::FlowControlContext *ctx) {
+// }
+
+llvm::AllocaInst* Visitor::CreateEntryBlockAlloca(llvm::Function *function,
+                                          llvm::StringRef varname) {
+  llvm::IRBuilder<> tmp(&function->getEntryBlock(),
+                   function->getEntryBlock().begin());
+  return tmp.CreateAlloca(llvm::Type::getInt32Ty(*llvm_context_), nullptr, varname);
+}
+
+std::any Visitor::visitAssign(codegen::TParser::AssignContext *ctx) {
+  auto varname = ctx->ID()->getText();
+  std::cerr << "visitAssign " << varname << std::endl;
+  llvm::Value* val = std::any_cast<llvm::Value*>(visit(ctx->expr()));
+  if (!val) {
+    return nullptr;
+  }
+
+  std::cerr << "got expr" << std::endl;
+  llvm::Function *function = ir_builder_->GetInsertBlock()->getParent();
+  llvm::AllocaInst *alloca;
+  if (auto it = named_values_.find(varname); it != named_values_.end()) {
+    alloca = it->second;
+  } else {
+    alloca = CreateEntryBlockAlloca(function, varname);
+  }
+  ir_builder_->CreateStore(val, alloca);
+
+  named_values_[varname] = alloca;
+
+  return nullptr;
+}
+
+std::any Visitor::visitBinaryOp(codegen::TParser::BinaryOpContext *ctx) {
+    std::cerr << "binary op" << std::endl;
+    llvm::Value* lhs = std::any_cast<llvm::Value*>(visit(ctx->lhs));
+    llvm::Value* rhs = std::any_cast<llvm::Value*>(visit(ctx->rhs));
+
+    if (!lhs || !rhs) {
+        return nullptr;
+    }
+
+    // FIXME: dirty way to get op
+    auto op = ctx->op()->getText();
+    if (op == "+") {
+        return ir_builder_->CreateAdd(lhs, rhs);
+    } else if (op == "-") {
+        return ir_builder_->CreateSub(lhs, rhs);
+    } else if (op == "*") {
+        return ir_builder_->CreateMul(lhs, rhs);
+    }
+    throw std::logic_error{"invalid binary operator"};
+}
+
+std::any Visitor::visitReturn(codegen::TParser::ReturnContext *ctx) {
+  return {};
 }
 
 const llvm::Module* Visitor::GetIr() const {
