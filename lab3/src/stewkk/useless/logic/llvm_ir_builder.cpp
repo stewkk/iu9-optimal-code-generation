@@ -27,7 +27,8 @@ std::any Visitor::visitInt(codegen::TParser::IntContext *ctx) {
 
 std::any Visitor::visitIdent(codegen::TParser::IdentContext *ctx) {
   auto name = ctx->ID()->getText();
-  return static_cast<llvm::Value*>(named_values_[name]);
+  auto alloca = named_values_[name];
+  return static_cast<llvm::Value*>(ir_builder_->CreateLoad(alloca->getAllocatedType(), alloca, name));
 }
 
 std::any Visitor::visitFlowControl(codegen::TParser::FlowControlContext *ctx) {
