@@ -64,28 +64,30 @@ std::any Visitor::visitAssign(codegen::TParser::AssignContext *ctx) {
 }
 
 std::any Visitor::visitBinaryOp(codegen::TParser::BinaryOpContext *ctx) {
-    std::cerr << "binary op" << std::endl;
-    llvm::Value* lhs = std::any_cast<llvm::Value*>(visit(ctx->lhs));
-    llvm::Value* rhs = std::any_cast<llvm::Value*>(visit(ctx->rhs));
+  std::cerr << "binary op" << std::endl;
+  llvm::Value *lhs = std::any_cast<llvm::Value *>(visit(ctx->lhs));
+  llvm::Value *rhs = std::any_cast<llvm::Value *>(visit(ctx->rhs));
 
-    if (!lhs || !rhs) {
-        return nullptr;
-    }
+  if (!lhs || !rhs) {
+    return nullptr;
+  }
 
-    // FIXME: dirty way to get op
-    auto op = ctx->op()->getText();
-    if (op == "+") {
-        return ir_builder_->CreateAdd(lhs, rhs);
-    } else if (op == "-") {
-        return ir_builder_->CreateSub(lhs, rhs);
-    } else if (op == "*") {
-        return ir_builder_->CreateMul(lhs, rhs);
-    }
-    throw std::logic_error{"invalid binary operator"};
+  // FIXME: dirty way to get op
+  auto op = ctx->op()->getText();
+  if (op == "+") {
+    return ir_builder_->CreateAdd(lhs, rhs);
+  } else if (op == "-") {
+    return ir_builder_->CreateSub(lhs, rhs);
+  } else if (op == "*") {
+    return ir_builder_->CreateMul(lhs, rhs);
+  }
+  throw std::logic_error{"invalid binary operator"};
 }
 
 std::any Visitor::visitReturn(codegen::TParser::ReturnContext *ctx) {
-  return {};
+  llvm::Value* val = std::any_cast<llvm::Value*>(visit(ctx->expr()));
+  ir_builder_->CreateRet(val);
+  return nullptr;
 }
 
 const llvm::Module* Visitor::GetIr() const {
