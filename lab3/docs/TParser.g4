@@ -17,7 +17,7 @@ control: If
     | While
 ;
 
-cond: expr condOp expr;
+cond: lhs=expr condOp rhs=expr;
 
 condOp: Equal
     | NotEqual

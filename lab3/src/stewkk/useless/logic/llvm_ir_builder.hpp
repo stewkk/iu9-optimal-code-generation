@@ -26,9 +26,10 @@ public:
   virtual std::any visitInt(codegen::TParser::IntContext *ctx) override;
   virtual std::any visitIdent(codegen::TParser::IdentContext *ctx) override;
   virtual std::any visitBinaryOp(codegen::TParser::BinaryOpContext *ctx) override;
-  // virtual std::any visitFlowControl(codegen::TParser::FlowControlContext *ctx) override;
+  virtual std::any visitFlowControl(codegen::TParser::FlowControlContext *ctx) override;
   virtual std::any visitAssign(codegen::TParser::AssignContext *ctx) override;
   virtual std::any visitReturn(codegen::TParser::ReturnContext *ctx) override;
+  virtual std::any visitCond(codegen::TParser::CondContext *ctx) override;
 
   llvm::AllocaInst* CreateEntryBlockAlloca(llvm::Function *TheFunction,
                                           llvm::StringRef VarName);

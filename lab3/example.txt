@@ -2,9 +2,9 @@
 y = 10;
 x = 2 + 3 * y;
 
-# if (x < y) {
-#    return x;
-# }
+if (x < y) {
+   return x;
+}
 
 z = 1;
 

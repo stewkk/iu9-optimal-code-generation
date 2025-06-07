@@ -30,8 +30,31 @@ std::any Visitor::visitIdent(codegen::TParser::IdentContext *ctx) {
   return static_cast<llvm::Value*>(named_values_[name]);
 }
 
-// std::any Visitor::visitFlowControl(codegen::TParser::FlowControlContext *ctx) {
-// }
+std::any Visitor::visitFlowControl(codegen::TParser::FlowControlContext *ctx) {
+  llvm::Value* cond = std::any_cast<llvm::Value*>(visit(ctx->cond()));
+  if (!cond) {
+    return nullptr;
+  }
+
+  llvm::Function *function = ir_builder_->GetInsertBlock()->getParent();
+  llvm::BasicBlock *then_bb = llvm::BasicBlock::Create(*llvm_context_, "then", function);
+  llvm::BasicBlock *merge_bb = llvm::BasicBlock::Create(*llvm_context_, "ifcont");
+  ir_builder_->CreateCondBr(cond, then_bb, merge_bb);
+
+  ir_builder_->SetInsertPoint(then_bb);
+
+  for (auto stat : ctx->stat()) {
+    visit(stat);
+  }
+
+  ir_builder_->CreateBr(merge_bb);
+  then_bb = ir_builder_->GetInsertBlock();
+
+  function->insert(function->end(), merge_bb);
+  ir_builder_->SetInsertPoint(merge_bb);
+
+  return nullptr;
+}
 
 llvm::AllocaInst* Visitor::CreateEntryBlockAlloca(llvm::Function *function,
                                           llvm::StringRef varname) {
@@ -61,6 +84,27 @@ std::any Visitor::visitAssign(codegen::TParser::AssignContext *ctx) {
   named_values_[varname] = alloca;
 
   return nullptr;
+}
+
+std::any Visitor::visitCond(codegen::TParser::CondContext *ctx) {
+  llvm::Value *lhs = std::any_cast<llvm::Value *>(visit(ctx->lhs));
+  llvm::Value *rhs = std::any_cast<llvm::Value *>(visit(ctx->rhs));
+
+  if (!lhs || !rhs) {
+    return nullptr;
+  }
+
+  auto op = ctx->condOp()->getText();
+  if (op == "<") {
+    return ir_builder_->CreateICmpSLE(lhs, rhs);
+  } else if (op == ">") {
+    return ir_builder_->CreateICmpSGE(lhs, rhs);
+  } else if (op == "==") {
+    return ir_builder_->CreateICmpEQ(lhs, rhs);
+  } else if (op == "!=") {
+    return ir_builder_->CreateICmpNE(lhs, rhs);
+  }
+  throw std::logic_error{"invalid binary operator"};
 }
 
 std::any Visitor::visitBinaryOp(codegen::TParser::BinaryOpContext *ctx) {
