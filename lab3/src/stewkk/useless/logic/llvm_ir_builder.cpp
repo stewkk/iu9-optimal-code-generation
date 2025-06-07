@@ -31,29 +31,58 @@ std::any Visitor::visitIdent(codegen::TParser::IdentContext *ctx) {
 }
 
 std::any Visitor::visitFlowControl(codegen::TParser::FlowControlContext *ctx) {
-  llvm::Value* cond = std::any_cast<llvm::Value*>(visit(ctx->cond()));
-  if (!cond) {
+  if (ctx->control()->getText() == "if") {
+    llvm::Value *cond = std::any_cast<llvm::Value *>(visit(ctx->cond()));
+    if (!cond) {
+      return nullptr;
+    }
+
+    llvm::Function *function = ir_builder_->GetInsertBlock()->getParent();
+    llvm::BasicBlock *then_bb = llvm::BasicBlock::Create(*llvm_context_, "then", function);
+    llvm::BasicBlock *merge_bb = llvm::BasicBlock::Create(*llvm_context_, "ifcont");
+    ir_builder_->CreateCondBr(cond, then_bb, merge_bb);
+
+    ir_builder_->SetInsertPoint(then_bb);
+
+    for (auto stat : ctx->stat()) {
+      visit(stat);
+    }
+
+    ir_builder_->CreateBr(merge_bb);
+    then_bb = ir_builder_->GetInsertBlock();
+
+    function->insert(function->end(), merge_bb);
+    ir_builder_->SetInsertPoint(merge_bb);
+
+    return nullptr;
+  } else {
+    llvm::Function *function = ir_builder_->GetInsertBlock()->getParent();
+
+    llvm::BasicBlock *loop_bb = llvm::BasicBlock::Create(*llvm_context_, "loop", function);
+    llvm::BasicBlock *body_bb = llvm::BasicBlock::Create(*llvm_context_, "body", function);
+    llvm::BasicBlock *after_bb = llvm::BasicBlock::Create(*llvm_context_, "afterloop", function);
+    ir_builder_->CreateBr(loop_bb);
+    ir_builder_->SetInsertPoint(loop_bb);
+
+    llvm::Value *cond = std::any_cast<llvm::Value *>(visit(ctx->cond()));
+    if (!cond) {
+      return nullptr;
+    }
+
+    ir_builder_->CreateCondBr(cond, body_bb, after_bb);
+
+    ir_builder_->SetInsertPoint(body_bb);
+
+    for (auto stat : ctx->stat()) {
+      visit(stat);
+    }
+
+    ir_builder_->CreateBr(loop_bb);
+
+    ir_builder_->SetInsertPoint(after_bb);
+
     return nullptr;
   }
-
-  llvm::Function *function = ir_builder_->GetInsertBlock()->getParent();
-  llvm::BasicBlock *then_bb = llvm::BasicBlock::Create(*llvm_context_, "then", function);
-  llvm::BasicBlock *merge_bb = llvm::BasicBlock::Create(*llvm_context_, "ifcont");
-  ir_builder_->CreateCondBr(cond, then_bb, merge_bb);
-
-  ir_builder_->SetInsertPoint(then_bb);
-
-  for (auto stat : ctx->stat()) {
-    visit(stat);
-  }
-
-  ir_builder_->CreateBr(merge_bb);
-  then_bb = ir_builder_->GetInsertBlock();
-
-  function->insert(function->end(), merge_bb);
-  ir_builder_->SetInsertPoint(merge_bb);
-
-  return nullptr;
 }
 
 llvm::AllocaInst* Visitor::CreateEntryBlockAlloca(llvm::Function *function,

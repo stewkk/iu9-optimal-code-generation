@@ -8,9 +8,8 @@ if (x < y) {
 
 z = 1;
 
-# while (x == z) {
-#     z = 10;
-#     break;
-# }
+while (x == z) {
+    z = 10;
+}
 
 return 123;
